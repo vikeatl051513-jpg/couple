@@ -1,0 +1,11 @@
+@import "./base.css";
+
+#app {
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}

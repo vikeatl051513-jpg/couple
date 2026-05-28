@@ -1,0 +1,136 @@
+<view class="mine-page">
+  <scroll-view class="page-content" scroll-y enhanced show-scrollbar="{{false}}">
+    <view wx:if="{{needLogin}}" class="login-card">
+      <view class="login-avatar">微</view>
+      <view class="login-copy">
+        <view class="login-title">微信登录后使用</view>
+        <view class="login-desc">手机号授权后进入专属服务空间，头像昵称可稍后同步。</view>
+      </view>
+      <view class="login-btn" bindtap="goAccount">去登录</view>
+    </view>
+
+    <view wx:else class="profile-card">
+      <view class="profile-user">
+        <view class="profile-avatar">
+          <image wx:if="{{profileAvatarUrl}}" class="profile-avatar-img" src="{{profileAvatarUrl}}" mode="aspectFill" />
+          <text wx:else>{{avatarText}}</text>
+        </view>
+        <view class="profile-meta">
+          <view class="profile-name">{{user.nickname || '空间成员'}}</view>
+          <view class="profile-subrow">
+            <view class="profile-role">身份：{{roleText || '空间成员'}}</view>
+          </view>
+        </view>
+      </view>
+      <view class="btn-checkin {{checkinToday ? 'checked' : ''}}" bindtap="checkin">{{checkinToday ? '已签到' : '签到'}}</view>
+      <view class="profile-stats">
+        <view class="stat-item">
+          <view class="stat-val">{{user.points || 0}}</view>
+          <view class="stat-lbl">我的积分</view>
+        </view>
+        <view class="stat-item middle">
+          <view class="stat-val">{{unlockedDressCount}}</view>
+          <view class="stat-lbl">已解锁装扮</view>
+        </view>
+        <view class="stat-item">
+          <view class="stat-val">{{companionDays}}天</view>
+          <view class="stat-lbl">相伴时间</view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{!needLogin}}" wx:for="{{menuGroups}}" wx:key="key" class="menu-group">
+      <block wx:for="{{item.items}}" wx:for-item="menu" wx:key="action">
+      <view
+        wx:if="{{menu.action === 'invite'}}"
+        class="menu-row share-menu-row"
+        data-action="{{menu.action}}"
+        bindtap="handleMenuAction"
+      >
+        <view class="menu-left">
+          <text class="menu-icon">{{menu.icon}}</text>
+          <text>{{menu.title}}</text>
+        </view>
+        <view class="menu-right">
+          <text>{{inviteLoading ? '准备邀请中' : menu.subtitle}}</text>
+          <text wx:if="{{menu.badge}}" class="menu-badge">{{menu.badge}}</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+      <view wx:else class="menu-row" data-action="{{menu.action}}" bindtap="handleMenuAction">
+        <view class="menu-left">
+          <text class="menu-icon">{{menu.icon}}</text>
+          <text>{{menu.title}}</text>
+        </view>
+        <view class="menu-right">
+          <text wx:if="{{menu.subtitle}}">{{menu.subtitle}}</text>
+          <text wx:if="{{menu.badge}}" class="menu-badge">{{menu.badge}}</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{showInviteSheet}}" class="invite-mask" bindtap="closeInvitePanel">
+    <view class="invite-sheet" catchtap="noop">
+      <view class="invite-handle"></view>
+      <view class="invite-title">邀请对象</view>
+      <view class="invite-desc">可以直接分享给对象，也可以用邀请码兜底。只有你一个人在空间时，也可以填写对方的邀请码加入对方空间。</view>
+
+      <button
+        class="share-option-btn"
+        open-type="share"
+        data-share-type="invite"
+        disabled="{{inviteLoading || !inviteInfo.inviteCode}}"
+      >
+        <text class="share-option-icon">💌</text>
+        <text>分享邀请</text>
+      </button>
+
+      <view class="invite-code-title">我的邀请码</view>
+      <view class="invite-code-box">{{inviteInfo.inviteCode || '生成中'}}</view>
+      <view class="invite-actions">
+        <button class="invite-ghost" bindtap="closeInvitePanel">关闭</button>
+        <button class="invite-primary" bindtap="copyInviteCode">复制邀请码</button>
+      </view>
+
+      <view wx:if="{{members.length <= 1}}" class="join-invite-box">
+        <view class="invite-code-title">填写对方邀请码</view>
+        <view class="join-row">
+          <input class="join-input" value="{{inviteCodeInput}}" placeholder="输入对象的邀请码" bindinput="inputInviteCode" />
+          <button class="join-btn" bindtap="bindInviteCode">绑定</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-nav">
+    <view class="nav-item" bindtap="goMenu">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">🛎️</text>
+      </view>
+      <text>点单</text>
+    </view>
+    <view class="nav-item" bindtap="goTodos">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">📋</text>
+        <text wx:if="{{pendingTodoCount > 0}}" class="nav-badge">{{pendingTodoCount > 99 ? '99+' : pendingTodoCount}}</text>
+      </view>
+      <text>待办</text>
+    </view>
+    <view class="nav-item" bindtap="goOrders">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">💌</text>
+        <text wx:if="{{pendingOrderCount > 0}}" class="nav-badge">{{pendingOrderCount > 99 ? '99+' : pendingOrderCount}}</text>
+      </view>
+      <text>订单</text>
+    </view>
+    <view class="nav-item active">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">🏠</text>
+      </view>
+      <text>我的</text>
+    </view>
+  </view>
+</view>

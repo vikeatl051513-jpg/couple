@@ -1,0 +1,251 @@
+<view class="manage-page">
+  <view class="menu-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-row">
+      <view class="back-btn" bindtap="goBack">← 返回</view>
+      <view class="nav-title">空间管理</view>
+      <view class="nav-spacer"></view>
+    </view>
+  </view>
+
+  <view wx:if="{{noAccess}}" class="locked-card">
+    <view class="locked-icon">锁</view>
+    <view class="locked-title">仅空间管理员可管理空间</view>
+    <view class="locked-desc">当前身份：{{roleText || '空间成员'}}。你现在可以点单，空间资料和服务菜单由管理员维护。</view>
+  </view>
+
+  <block wx:else>
+    <view class="manage-tabs">
+      <view class="manage-tab {{activeManageTab === 'space' ? 'active' : ''}}" data-tab="space" bindtap="switchManageTab">
+        <text class="tab-main">空间设置</text>
+        <text class="tab-sub">名称与权限</text>
+      </view>
+      <view class="manage-tab {{activeManageTab === 'menu' ? 'active' : ''}}" data-tab="menu" bindtap="switchManageTab">
+        <text class="tab-main">分类服务</text>
+        <text class="tab-sub">分类与添加服务</text>
+      </view>
+    </view>
+
+    <scroll-view class="config-content {{activeManageTab === 'menu' ? 'with-actions' : ''}}" scroll-y enhanced show-scrollbar="{{false}}">
+      <block wx:if="{{activeManageTab === 'space'}}">
+        <view class="space-card">
+          <view class="space-card-head">
+            <view>
+              <view class="space-title">空间资料</view>
+              <view class="space-desc">修改点单页顶部的小家名称和公告</view>
+            </view>
+            <view class="space-level">Lv.{{space.level || 1}}</view>
+          </view>
+
+          <view class="form-group compact">
+            <view class="form-label">空间名称</view>
+            <input class="form-input" placeholder="例如：铁铁的专属小家" value="{{spaceForm.name}}" data-key="name" bindinput="inputSpace" />
+          </view>
+
+          <view class="form-group compact last">
+            <view class="form-label">空间公告</view>
+            <textarea class="space-textarea" maxlength="80" placeholder="例如：今天也要好好照顾彼此" value="{{spaceForm.announcement}}" data-key="announcement" bindinput="inputSpace"></textarea>
+          </view>
+
+          <view class="space-save {{spaceSaving ? 'saving' : ''}}" bindtap="saveSpace">{{spaceSaving ? '保存中...' : '保存空间资料'}}</view>
+        </view>
+
+        <view class="space-card handover-card">
+          <view class="space-card-head">
+            <view>
+              <view class="space-title">管理权限</view>
+              <view class="space-desc">当前管理员：{{currentManagerName || '空间管理员'}}</view>
+            </view>
+          </view>
+          <view class="handover-tip">交接后，对方会管理空间和服务菜单，并成为默认接单的人；你会变成点单、被服务的一方。</view>
+
+          <view wx:if="{{!managementTargets.length}}" class="empty-card inline">空间里还没有可交接的对象，先去邀请对方加入。</view>
+
+          <view wx:for="{{managementTargets}}" wx:key="id" class="manager-row">
+            <view class="manager-avatar">
+              <image wx:if="{{item.avatarUrl}}" class="manager-avatar-img" src="{{item.avatarUrl}}" mode="aspectFill" />
+              <text wx:else>{{item.avatarText || 'TA'}}</text>
+            </view>
+            <view class="manager-info">
+              <view class="manager-name">{{item.name}}</view>
+              <view class="manager-desc">交给 TA 管理后，TA 将负责接单和菜单维护</view>
+            </view>
+            <view
+              class="manager-transfer {{transferLoading || !canTransferManager ? 'disabled' : ''}}"
+              data-id="{{item.id}}"
+              bindtap="transferManager"
+            >
+              {{transferLoading ? '交接中' : '交给TA'}}
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <block wx:else>
+        <view wx:if="{{!services.length && templates.length}}" class="template-card">
+          <view class="template-card-head">
+            <view>
+              <view class="template-title">模板导入</view>
+              <view class="template-desc">新空间可以先导入一套分类和服务，再慢慢微调。</view>
+            </view>
+          </view>
+
+          <view
+            wx:for="{{templates}}"
+            wx:key="id"
+            class="template-row"
+          >
+            <view class="template-icon">{{item.scene === 'family' ? '家' : '甜'}}</view>
+            <view class="template-main">
+              <view class="template-name">{{item.name}}</view>
+              <view class="template-meta">{{item.description}} · {{item.items.length || 0}} 项</view>
+            </view>
+            <view
+              class="template-import {{templateImporting ? 'disabled' : ''}}"
+              data-id="{{item.id}}"
+              bindtap="importTemplate"
+            >
+              {{templateImporting ? '导入中' : '导入'}}
+            </view>
+          </view>
+        </view>
+
+        <view class="section-title">现有服务分类</view>
+
+        <view wx:if="{{!categories.length}}" class="empty-card">还没有服务分类，可以一键导入模板，也可以手动新建。</view>
+
+        <view wx:for="{{categories}}" wx:key="id" class="admin-list-card {{item.expanded ? 'expanded' : ''}}">
+          <view class="category-card-head" data-id="{{item.id}}" bindtap="toggleCategory">
+            <view class="list-info">
+              <view class="list-title">
+                <text>{{item.name}}</text>
+              </view>
+              <view class="list-desc">包含 {{item.serviceCount || 0}} 个服务项目</view>
+            </view>
+            <view class="category-head-actions">
+              <view class="list-action" data-id="{{item.id}}" catchtap="editCategory">编辑</view>
+              <view class="expand-arrow {{item.expanded ? 'open' : ''}}">⌄</view>
+            </view>
+          </view>
+
+          <view wx:if="{{item.expanded}}" class="category-services">
+            <view wx:if="{{!item.serviceList.length}}" class="category-empty">这个分类还没有服务</view>
+            <view
+              wx:for="{{item.serviceList}}"
+              wx:for-item="service"
+              wx:key="id"
+              class="category-service-row"
+              data-id="{{service.id}}"
+              bindtap="editService"
+            >
+              <view class="service-thumb">
+                <image wx:if="{{service.imageUrl}}" class="service-thumb-img" src="{{service.imageUrl}}" mode="aspectFill" />
+                <text wx:else>{{service.tag || service.visualText || '茶'}}</text>
+              </view>
+              <view class="service-row-main">
+                <view class="service-row-name">{{service.name}}</view>
+                <view class="service-row-desc">{{service.description || '暂无说明'}}</view>
+              </view>
+              <view class="service-row-edit">编辑</view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </scroll-view>
+
+    <view wx:if="{{activeManageTab === 'menu'}}" class="bottom-action-bar">
+      <view class="btn-add-category" bindtap="openCategorySheet">新建分类</view>
+      <view class="btn-add-service" bindtap="openServiceSheet">+ 添加服务菜品</view>
+    </view>
+
+    <view class="sheet-overlay {{activeSheet ? 'show' : ''}}" catchtap="closeAllSheets" catchtouchmove="noop"></view>
+
+    <view class="bottom-sheet category-sheet {{activeSheet === 'category' ? 'show' : ''}}" catchtouchmove="noop">
+      <view class="sheet-header">
+        <view class="sheet-title">{{categoryForm.id ? '编辑服务分类' : '新建服务分类'}}</view>
+        <view class="sheet-close" bindtap="closeAllSheets">×</view>
+      </view>
+
+      <view class="sheet-content">
+        <view class="form-group">
+          <view class="form-label">分类名称</view>
+          <input class="form-input" placeholder="例如：家务分担、陪玩游戏" value="{{categoryForm.name}}" data-key="name" bindinput="inputCategory" />
+        </view>
+
+        <view class="form-row">
+          <view class="form-row-title">是否在菜单页显示</view>
+          <switch color="#52c41a" checked="{{categoryForm.visible}}" bindchange="toggleCategoryVisible" />
+        </view>
+
+        <view class="btn-submit" bindtap="saveCategory">{{categoryForm.id ? '保存分类' : '保存分类'}}</view>
+      </view>
+    </view>
+
+    <view class="bottom-sheet service-sheet {{activeSheet === 'service' ? 'show' : ''}}" catchtouchmove="noop">
+      <view class="sheet-header">
+        <view class="sheet-title">{{serviceForm.id ? '编辑服务（菜品）' : '添加新服务（菜品）'}}</view>
+        <view class="sheet-close" bindtap="closeAllSheets">×</view>
+      </view>
+
+      <scroll-view class="sheet-content service-content" scroll-y enhanced show-scrollbar="{{false}}">
+        <view class="form-group">
+          <view class="form-label">服务名称 <text class="required">*</text></view>
+          <input class="form-input" placeholder="例如：拿快递、帮我吹头发" value="{{serviceForm.name}}" data-key="name" bindinput="inputService" />
+        </view>
+
+        <view class="form-group">
+          <view class="form-label">所属分类 <text class="required">*</text></view>
+          <picker mode="selector" range="{{categories}}" range-key="name" value="{{serviceCategoryIndex}}" bindchange="changeServiceCategory">
+            <view class="form-select">
+              <view class="select-main">
+                <text>{{serviceForm.categoryName || '请选择分类'}}</text>
+              </view>
+              <text class="select-arrow">⌄</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-group">
+          <view class="form-label">服务配图</view>
+          <view class="image-picker-wrap">
+            <view class="current-image-box">
+              <view class="preview-img" bindtap="chooseServiceImage">
+                <image wx:if="{{serviceForm.imageUrl}}" class="preview-real-img" src="{{serviceForm.imageUrl}}" mode="aspectFill" />
+                <text wx:else>茶</text>
+              </view>
+              <view class="current-image-meta">
+                <view class="current-title">当前主图</view>
+                <view class="upload-btn" bindtap="chooseServiceImage">{{imageUploading ? '上传中...' : '从手机相册上传'}}</view>
+              </view>
+            </view>
+
+            <view class="gallery-tip">不想传图？直接选择默认卡通图：</view>
+            <view class="default-gallery">
+              <view
+                wx:for="{{presetImages}}"
+                wx:key="path"
+                class="gallery-item {{serviceForm.imageUrl === item.path ? 'selected' : ''}}"
+                data-path="{{item.path}}"
+                data-label="{{item.label}}"
+                bindtap="selectPresetImage"
+              >
+                <image class="gallery-img" src="{{item.path}}" mode="aspectFit" />
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="form-group">
+          <view class="form-label">消耗空间积分</view>
+          <input class="form-input" type="number" placeholder="0" value="{{serviceForm.pointCost}}" data-key="pointCost" bindinput="inputService" />
+        </view>
+
+        <view class="form-row">
+          <view class="form-row-title">下单时需填写备注</view>
+          <switch color="#52c41a" checked="{{serviceForm.requireRemark}}" data-key="requireRemark" bindchange="toggleService" />
+        </view>
+
+        <view class="btn-submit" bindtap="saveService">{{serviceForm.id ? '保存修改' : '发布上架'}}</view>
+      </scroll-view>
+    </view>
+  </block>
+</view>

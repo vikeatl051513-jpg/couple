@@ -1,0 +1,106 @@
+<view class="orders-page">
+  <view class="page-header">
+    <view class="page-title">点单记录</view>
+  </view>
+
+  <view class="order-nav-tabs">
+    <view
+      wx:for="{{orderSides}}"
+      wx:key="key"
+      class="order-nav-tab {{activeSide === item.key ? 'active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchSide"
+    >
+      {{item.label}}
+    </view>
+  </view>
+
+  <scroll-view class="order-filter-bar" scroll-x enhanced show-scrollbar="{{false}}">
+    <view
+      wx:for="{{filters}}"
+      wx:key="key"
+      class="filter-badge {{activeStatus === item.key ? 'active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchStatus"
+    >
+      {{item.label}}
+    </view>
+  </scroll-view>
+
+  <scroll-view class="page-content" scroll-y enhanced show-scrollbar="{{false}}">
+    <view wx:if="{{!visibleOrders.length}}" class="empty-card">暂无点单记录</view>
+    <view wx:for="{{visibleOrders}}" wx:key="id" class="order-card">
+      <view class="order-card-header">
+        <text class="order-no">订单号: {{item.orderNo}}</text>
+        <text class="order-status {{item.statusClass}}">{{item.statusLabel}}</text>
+      </view>
+      <view class="order-card-body">
+        <view class="order-detail">
+          <view class="order-title">{{item.icon}} {{item.title}}</view>
+          <view class="order-remark">备注：{{item.remarkText}}</view>
+          <view class="order-time">{{item.status === 'completed' ? '完成于：' + item.finishText : '发起于：' + item.timeText}}</view>
+        </view>
+      </view>
+      <view class="order-actions">
+        <view wx:if="{{item.status === 'pending' && activeSide === 'sent'}}" class="btn-action-outline">修改备注</view>
+        <view
+          wx:if="{{item.status === 'pending' && activeSide === 'sent'}}"
+          class="btn-action-outline danger"
+          data-id="{{item.id}}"
+          data-action="cancel"
+          bindtap="changeOrder"
+        >
+          取消点单
+        </view>
+        <view
+          wx:if="{{item.status === 'pending' && activeSide === 'received'}}"
+          class="btn-action-primary"
+          data-id="{{item.id}}"
+          data-action="accept"
+          bindtap="changeOrder"
+        >
+          接单
+        </view>
+        <view
+          wx:if="{{item.status === 'accepted' && activeSide === 'received'}}"
+          class="btn-action-primary"
+          data-id="{{item.id}}"
+          data-action="complete"
+          bindtap="changeOrder"
+        >
+          完成
+        </view>
+        <view wx:if="{{item.status === 'completed'}}" class="btn-action-primary success">评价满意</view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="bottom-nav">
+    <view class="nav-item" bindtap="goMenu">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">🛎️</text>
+      </view>
+      <text>点单</text>
+    </view>
+    <view class="nav-item" bindtap="goTodos">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">📋</text>
+        <text wx:if="{{pendingTodoCount > 0}}" class="nav-badge">{{pendingTodoCount > 99 ? '99+' : pendingTodoCount}}</text>
+      </view>
+      <text>待办</text>
+    </view>
+    <view class="nav-item active">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">💌</text>
+        <text wx:if="{{pendingOrderCount > 0}}" class="nav-badge">{{pendingOrderCount > 99 ? '99+' : pendingOrderCount}}</text>
+      </view>
+      <text>订单</text>
+    </view>
+    <view class="nav-item" bindtap="goMine">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">🏠</text>
+      </view>
+      <text>我的</text>
+    </view>
+  </view>
+</view>

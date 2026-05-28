@@ -1,0 +1,76 @@
+<view class="anniversary-page">
+  <scroll-view class="page-content" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hero-card">
+      <view class="hero-meta">
+        <view class="hero-kicker">{{space.name || '专属空间'}}</view>
+        <view class="hero-title">{{hero ? hero.name : '还没有纪念日'}}</view>
+        <view class="hero-desc">{{hero ? '从 ' + hero.dateText + ' 开始，已经一起走过' : '把重要日子记下来，之后每次打开都能看到倒计时。'}}</view>
+      </view>
+      <view class="hero-days">
+        <text class="hero-num">{{hero ? hero.days : 0}}</text>
+        <text class="hero-unit">天</text>
+      </view>
+      <view wx:if="{{hero}}" class="next-pill">下一次：{{hero.nextText}}</view>
+    </view>
+
+    <view class="section-head">
+      <view>
+        <view class="section-title">全部纪念日</view>
+        <view class="section-subtitle">支持倒计时、累计天数和重要标记</view>
+      </view>
+      <view class="add-btn" bindtap="openAddSheet">新增</view>
+    </view>
+
+    <view wx:if="{{!anniversaries.length}}" class="empty-card">
+      <view class="empty-title">先添加一个重要日子</view>
+      <view class="empty-desc">例如恋爱纪念日、生日、第一次见面，或者属于你们的小暗号。</view>
+      <view class="empty-action" bindtap="openAddSheet">添加纪念日</view>
+    </view>
+
+    <view
+      wx:for="{{anniversaries}}"
+      wx:key="id"
+      class="anniversary-card {{item.important ? 'important' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="editAnniversary"
+    >
+      <view class="card-left">
+        <view class="card-name">{{item.name}}</view>
+        <view class="card-date">{{item.dateText}} · 已经 {{item.days}} 天</view>
+      </view>
+      <view class="card-right">
+        <view class="countdown">{{item.nextText}}</view>
+        <view class="badge">{{item.badgeText}}</view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{showSheet}}" class="sheet-mask" bindtap="closeSheet">
+    <view class="anniversary-sheet" catchtap="noop">
+      <view class="sheet-handle"></view>
+      <view class="sheet-title">{{form.id ? '编辑纪念日' : '新增纪念日'}}</view>
+      <view class="form-group">
+        <view class="form-label">名称</view>
+        <input class="form-input" placeholder="例如：恋爱纪念日" value="{{form.name}}" bindinput="inputName" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">日期</view>
+        <picker mode="date" value="{{form.date}}" bindchange="changeDate">
+          <view class="form-input date-input">{{form.date}}</view>
+        </picker>
+      </view>
+      <view class="form-row">
+        <view>
+          <view class="form-row-title">标记为重要</view>
+          <view class="form-row-desc">重要纪念日会优先显示在顶部。</view>
+        </view>
+        <switch color="#ff6b8a" checked="{{form.important}}" bindchange="toggleImportant" />
+      </view>
+      <view class="sheet-actions">
+        <button wx:if="{{form.id}}" class="danger-btn" bindtap="removeAnniversary">删除</button>
+        <button class="ghost-btn" bindtap="closeSheet">取消</button>
+        <button class="submit-btn" bindtap="saveAnniversary">{{saving ? '保存中' : '保存'}}</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,134 @@
+<view class="menu-page">
+  <view class="header">
+    <view class="header-top">
+      <view class="user-info">
+        <view class="avatars" bindtap="syncProfile">
+          <block wx:for="{{avatarMembers}}" wx:key="id">
+            <image wx:if="{{item.avatarUrl}}" class="avatar {{item.avatarClass}}" src="{{item.avatarUrl}}" mode="aspectFill" />
+            <view wx:else class="avatar {{item.avatarClass}}">{{item.avatarText}}</view>
+          </block>
+        </view>
+        <view class="store-info">
+          <view class="store-name">
+            <text>{{space.name || '专属服务空间'}}</text>
+            <text class="level-badge">亲密度 Lv.{{space.level || 1}}</text>
+          </view>
+          <view class="emotion-status" bindtap="cycleMood">
+            <text class="emoji">🥺</text>
+            <text class="status-text">状态：{{currentMood.moodLabel || '未设置'}}</text>
+            <text wx:if="{{currentMood.note}}" class="status-note">，{{currentMood.note}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="more-btn" bindtap="goManage">···</view>
+    </view>
+  </view>
+
+  <view class="quick-actions">
+    <view class="action-btn point-btn" bindtap="goDress">🪙 空间积分：{{user.points || 0}}</view>
+    <view class="action-btn" bindtap="goWish">🎁 愿望清单</view>
+  </view>
+
+  <view class="main-content">
+    <scroll-view class="sidebar" scroll-y enhanced show-scrollbar="{{false}}">
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="category-item {{activeCategoryId === item.id ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="selectCategory"
+      >
+        {{item.name}}
+      </view>
+    </scroll-view>
+
+    <scroll-view class="item-list" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="category-title">
+        <text>{{activeCategory.name || '服务菜单'}}</text>
+        <text class="category-desc">{{activeCategory.description || '为喜欢的人服务'}}</text>
+      </view>
+
+      <view wx:if="{{!visibleItems.length}}" class="empty">
+        {{guestMode ? '先逛逛，准备点单时再进入你的专属空间' : '这个分类还没有服务，去管理页添加一个'}}
+      </view>
+
+      <view wx:for="{{visibleItems}}" wx:key="id" class="service-card">
+        <view class="service-img-wrap">
+          <image wx:if="{{item.imageUrl}}" class="service-img service-real-img" src="{{item.imageUrl}}" mode="aspectFill" />
+          <view wx:else class="service-img">{{item.visualText}}</view>
+          <view wx:if="{{item.cooldownMinutes}}" class="cooldown-mask">
+            <text>冷却中</text>
+            <text>{{item.cooldownMinutes}} 分钟</text>
+          </view>
+        </view>
+        <view class="service-info">
+          <view>
+            <view class="service-name">{{item.name}}</view>
+            <view class="service-desc">{{item.description}}</view>
+          </view>
+          <view class="service-bottom">
+            <view class="service-meta">
+              <text wx:if="{{item.priceText}}" class="{{item.pointCost ? 'tag-point' : 'tag-free'}}">{{item.priceText}}</text>
+              <text class="tag-time">{{item.needTimeText}}</text>
+              <text wx:if="{{item.needRemarkText}}" class="tag-remark">{{item.needRemarkText}}</text>
+            </view>
+            <view
+              wx:if="{{!item.cooldownMinutes}}"
+              class="btn-order"
+              data-id="{{item.id}}"
+              bindtap="openOrder"
+            >
+              {{item.orderButtonText}}
+            </view>
+            <view wx:else class="btn-order btn-disabled">{{item.orderButtonText}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </scroll-view>
+  </view>
+
+  <view class="bottom-nav">
+    <view class="nav-item active">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">🛎️</text>
+      </view>
+      <text>点单</text>
+    </view>
+    <view class="nav-item" bindtap="goTodos">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">📋</text>
+        <text wx:if="{{pendingTodoCount > 0}}" class="nav-badge">{{pendingTodoCount > 99 ? '99+' : pendingTodoCount}}</text>
+      </view>
+      <text>待办</text>
+    </view>
+    <view class="nav-item" bindtap="goOrders">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">💌</text>
+        <text wx:if="{{pendingOrderCount > 0}}" class="nav-badge">{{pendingOrderCount > 99 ? '99+' : pendingOrderCount}}</text>
+      </view>
+      <text>订单</text>
+    </view>
+    <view class="nav-item" bindtap="goMine">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">🏠</text>
+      </view>
+      <text>我的</text>
+    </view>
+  </view>
+
+  <view wx:if="{{selectedService}}" class="sheet-mask" bindtap="closeOrder">
+    <view class="order-sheet" catchtap="noop">
+      <view class="sheet-handle"></view>
+      <view class="sheet-title">{{selectedService.name}}</view>
+      <view class="sheet-desc">{{selectedService.description}}</view>
+      <textarea class="remark-input" placeholder="备注口味、时间、地址或小要求" value="{{remark}}" bindinput="onRemark"></textarea>
+      <view class="sheet-actions">
+        <button class="ghost-btn" bindtap="closeOrder">再看看</button>
+        <button class="submit-btn" bindtap="submitOrder">发送点单</button>
+      </view>
+    </view>
+  </view>
+
+</view>

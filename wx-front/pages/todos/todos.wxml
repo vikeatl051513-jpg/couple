@@ -1,0 +1,95 @@
+<view class="todo-page">
+  <view class="page-header">
+    <view class="page-title">待办事项</view>
+  </view>
+
+  <view class="todo-tabs">
+    <view
+      wx:for="{{todoTabs}}"
+      wx:key="key"
+      class="todo-tab {{activeTodoTab === item.key ? 'active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchTodoTab"
+    >
+      {{item.label}} ({{item.count}})
+    </view>
+  </view>
+
+  <scroll-view class="page-content" scroll-y enhanced show-scrollbar="{{false}}">
+    <view wx:if="{{!visibleTodos.length}}" class="empty-card">暂无待办事项</view>
+    <view wx:for="{{visibleTodos}}" wx:key="id" class="todo-card {{item.done ? 'done' : ''}}">
+      <view class="todo-checkbox" data-id="{{item.id}}" data-status="{{item.done ? 'pending' : 'done'}}" bindtap="toggleTodo">
+        <text wx:if="{{item.done}}">✓</text>
+      </view>
+      <view class="todo-body">
+        <view class="todo-title">{{item.title}}</view>
+        <view class="todo-desc">{{item.description || '暂无备注'}}</view>
+        <view class="todo-meta">
+          <text class="tag-priority {{item.priorityClass}}">{{item.priorityLabel}}</text>
+          <text class="tag-assignee">执行人: {{item.assigneeName}}</text>
+          <text class="tag-date">{{item.dueText}}</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="btn-add-todo" bindtap="showAddTodo">+</view>
+
+  <view wx:if="{{showTodoSheet}}" class="sheet-mask" bindtap="closeTodoSheet">
+    <view class="todo-sheet" catchtap="noop">
+      <view class="sheet-handle"></view>
+      <view class="sheet-title">新增待办</view>
+      <input class="todo-input" placeholder="待办标题，例如买牛奶" value="{{todoForm.title}}" data-key="title" bindinput="inputTodo" />
+      <textarea class="todo-textarea" placeholder="补充说明、地点或要求" value="{{todoForm.description}}" data-key="description" bindinput="inputTodo"></textarea>
+      <view class="picker-grid">
+        <picker mode="selector" range="{{members}}" range-key="nickname" value="{{assigneeIndex}}" bindchange="changeAssignee">
+          <view class="picker-cell">执行人：{{selectedAssigneeName}}</view>
+        </picker>
+        <picker mode="selector" range="{{priorityOptions}}" range-key="label" value="{{priorityIndex}}" bindchange="changePriority">
+          <view class="picker-cell">优先级：{{selectedPriorityLabel}}</view>
+        </picker>
+      </view>
+      <view class="picker-grid">
+        <picker mode="date" bindchange="changeDueDate">
+          <view class="picker-cell">{{todoForm.dueDate || '截止日期'}}</view>
+        </picker>
+        <picker mode="time" bindchange="changeDueTime">
+          <view class="picker-cell">{{todoForm.dueTime || '截止时间'}}</view>
+        </picker>
+      </view>
+      <view class="sheet-actions">
+        <button class="ghost-btn" bindtap="closeTodoSheet">取消</button>
+        <button class="submit-btn" bindtap="submitTodo">保存待办</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-nav">
+    <view class="nav-item" bindtap="goMenu">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">🛎️</text>
+      </view>
+      <text>点单</text>
+    </view>
+    <view class="nav-item active">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">📋</text>
+        <text wx:if="{{pendingTodoCount > 0}}" class="nav-badge">{{pendingTodoCount > 99 ? '99+' : pendingTodoCount}}</text>
+      </view>
+      <text>待办</text>
+    </view>
+    <view class="nav-item" bindtap="goOrders">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">💌</text>
+        <text wx:if="{{pendingOrderCount > 0}}" class="nav-badge">{{pendingOrderCount > 99 ? '99+' : pendingOrderCount}}</text>
+      </view>
+      <text>订单</text>
+    </view>
+    <view class="nav-item" bindtap="goMine">
+      <view class="nav-icon-wrap">
+        <text class="nav-icon">🏠</text>
+      </view>
+      <text>我的</text>
+    </view>
+  </view>
+</view>

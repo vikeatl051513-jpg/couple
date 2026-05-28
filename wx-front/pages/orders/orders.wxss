@@ -1,0 +1,278 @@
+.orders-page {
+  position: relative;
+  height: 100vh;
+  padding-bottom: 120rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f7f8fa;
+  color: #333333;
+}
+
+.page-header {
+  flex: 0 0 auto;
+  padding: 40rpx 30rpx 30rpx;
+  background: linear-gradient(180deg, #eadef7 0%, #f7f8fa 100%);
+}
+
+.page-title {
+  color: #333333;
+  font-size: 40rpx;
+  font-weight: 900;
+}
+
+.order-nav-tabs {
+  flex: 0 0 auto;
+  display: flex;
+  background: #ffffff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.order-nav-tab {
+  flex: 1;
+  padding: 24rpx 0;
+  color: #666666;
+  text-align: center;
+  font-size: 28rpx;
+}
+
+.order-nav-tab.active {
+  color: #9b88ed;
+  border-bottom: 4rpx solid #9b88ed;
+  font-weight: 900;
+}
+
+.order-filter-bar {
+  flex: 0 0 auto;
+  padding: 20rpx 30rpx;
+  box-sizing: border-box;
+  white-space: nowrap;
+  background: #f7f8fa;
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 48rpx;
+  margin-right: 16rpx;
+  padding: 0 24rpx;
+  border-radius: 24rpx;
+  color: #666666;
+  background: #ffffff;
+  font-size: 22rpx;
+}
+
+.filter-badge.active {
+  color: #9b88ed;
+  background: #eadef7;
+  font-weight: 900;
+}
+
+.page-content {
+  min-height: 0;
+  flex: 1;
+  padding: 0 30rpx 30rpx;
+  box-sizing: border-box;
+}
+
+.order-card {
+  margin-bottom: 24rpx;
+  padding: 30rpx;
+  border-radius: 28rpx;
+  background: #ffffff;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.02);
+}
+
+.order-card-header {
+  padding-bottom: 20rpx;
+  margin-bottom: 20rpx;
+  border-bottom: 1rpx dashed #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.order-no {
+  color: #999999;
+  font-size: 22rpx;
+}
+
+.order-status {
+  font-size: 24rpx;
+  font-weight: 900;
+}
+
+.status-pending {
+  color: #faad14;
+}
+
+.status-accepted {
+  color: #1890ff;
+}
+
+.status-completed {
+  color: #52c41a;
+}
+
+.status-canceled,
+.status-rejected {
+  color: #ff4d4f;
+}
+
+.order-card-body {
+  display: flex;
+  gap: 24rpx;
+}
+
+.order-detail {
+  min-width: 0;
+  flex: 1;
+}
+
+.order-title {
+  color: #333333;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.order-remark {
+  margin-top: 12rpx;
+  padding: 12rpx 20rpx;
+  border-radius: 12rpx;
+  color: #777777;
+  background: #f9f9f9;
+  font-size: 24rpx;
+  line-height: 1.35;
+}
+
+.order-time {
+  margin-top: 16rpx;
+  color: #bbbbbb;
+  font-size: 22rpx;
+}
+
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  margin-top: 24rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #fcfcfc;
+}
+
+.btn-action-outline,
+.btn-action-primary {
+  min-width: 136rpx;
+  height: 48rpx;
+  padding: 0 24rpx;
+  border-radius: 24rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+}
+
+.btn-action-outline {
+  border: 1rpx solid #cccccc;
+  color: #666666;
+  background: #ffffff;
+}
+
+.btn-action-outline.danger {
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+}
+
+.btn-action-primary {
+  color: #ffffff;
+  background: #9b88ed;
+  font-weight: 900;
+}
+
+.btn-action-primary.success {
+  background: #52c41a;
+}
+
+.empty-card {
+  padding: 80rpx 30rpx;
+  border-radius: 28rpx;
+  background: #ffffff;
+  color: #999999;
+  text-align: center;
+  font-size: 26rpx;
+}
+
+.bottom-nav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  height: 120rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top: 1rpx solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20rpx);
+  box-sizing: content-box;
+}
+
+.nav-item {
+  width: 25%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  color: #999999;
+  font-size: 20rpx;
+  font-weight: 500;
+}
+
+.nav-item.active {
+  color: #9b88ed;
+  font-weight: 900;
+}
+
+.nav-icon {
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.nav-icon-wrap {
+  position: relative;
+  min-width: 54rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-badge {
+  position: absolute;
+  top: -12rpx;
+  right: -22rpx;
+  min-width: 34rpx;
+  height: 34rpx;
+  padding: 0 8rpx;
+  border: 4rpx solid #ffffff;
+  border-radius: 999rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: #ffffff;
+  background: #ff3b30;
+  font-size: 19rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.nav-item.active .nav-icon {
+  transform: translateY(-4rpx);
+}

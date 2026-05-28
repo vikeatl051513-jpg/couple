@@ -1,0 +1,76 @@
+<view class="account-page">
+  <view wx:if="{{!isLoggedIn}}" class="account-card login-panel">
+    <view class="account-title">授权登录</view>
+    <view class="account-subtitle">一键进入你的空间，头像和昵称会先使用默认资料，手机号授权可用时会自动带上。</view>
+
+    <view class="login-visual">
+      <view class="phone-badge">
+        <view class="phone-screen"></view>
+        <view class="phone-check">✓</view>
+      </view>
+      <view class="login-slogan">立即登录，享受更多福利</view>
+      <view class="login-note">登录后可在账号页同步微信头像和昵称。</view>
+    </view>
+
+    <button
+      class="phone-login-btn"
+      open-type="getPhoneNumber"
+      bindgetphonenumber="onPhoneLogin"
+      disabled="{{loginLoading}}"
+    >
+      {{loginLoading ? '登录中' : '一键登录'}}
+    </button>
+    <view class="login-skip" bindtap="skipLogin">暂不登录</view>
+  </view>
+
+  <view wx:else class="account-card">
+    <view class="account-title">个人资料</view>
+    <view class="account-subtitle">头像和昵称可以按需更新；不修改时会继续使用默认资料。</view>
+
+    <view class="profile-preview">
+      <view class="avatar-preview">
+        <image wx:if="{{profileAvatarUrl}}" class="avatar-img" src="{{profileAvatarUrl}}" mode="aspectFill" />
+        <text wx:else>{{avatarText}}</text>
+      </view>
+      <view class="preview-meta">
+        <input
+          class="nickname-input"
+          type="nickname"
+          value="{{profileForm.nickname}}"
+          placeholder="{{displayNickname || '点击填写微信昵称'}}"
+          bindinput="onNicknameInput"
+        />
+        <view class="login-state">当前已登录</view>
+      </view>
+    </view>
+
+    <view class="form-actions">
+      <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        {{profileSaving ? '上传中' : '选择微信头像'}}
+      </button>
+      <button class="primary-btn" bindtap="saveProfile">
+        {{profileSaving ? '保存中' : '保存资料'}}
+      </button>
+      <button class="danger-btn" bindtap="logout">退出登录</button>
+    </view>
+  </view>
+
+  <view class="hint-card">
+    <view class="hint-title">资料更新说明</view>
+    <view class="hint-text">微信头像、昵称只有在你主动选择后才会同步；首次登录不会再要求先填资料或必须授权手机号。</view>
+  </view>
+
+  <view class="invite-card">
+    <view class="hint-title">邀请码绑定</view>
+    <view class="hint-text">如果微信分享打不开，让对象把邀请码发给你，登录后在这里填写即可加入对方空间。</view>
+    <view class="invite-form">
+      <input
+        class="invite-input"
+        value="{{inviteCode}}"
+        placeholder="输入对方的邀请码"
+        bindinput="onInviteCodeInput"
+      />
+      <button class="invite-bind-btn" bindtap="bindInviteCode">绑定</button>
+    </view>
+  </view>
+</view>

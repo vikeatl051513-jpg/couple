@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>情侣点单小程序原型 - 完善版</title>
+    <style>
+        /* 基础重置 */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif; }
+        body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* 移动端容器模拟 */
+        .app-container { width: 100%; max-width: 414px; height: 100vh; max-height: 896px; background-color: #ffffff; display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+
+        /* 顶部 Header 装扮区 (对应 MD：装扮系统、空间设置) */
+        .header { padding: 20px 15px 15px; background: linear-gradient(to bottom, #eadef7, #ffffff); position: relative; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .avatars { display: flex; position: relative; }
+        .avatars img { width: 44px; height: 44px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .avatars img:nth-child(2) { margin-left: -18px; z-index: 1; }
+        .store-info { display: flex; flex-direction: column; }
+        .store-name { font-size: 16px; font-weight: bold; color: #333; display: flex; align-items: center; gap: 6px; }
+        .level-badge { background-color: #9b88ed; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: normal; }
+        
+        /* 情绪状态区 (对应 MD：建议补充功能 2 - 情绪状态) */
+        .emotion-status { display: inline-flex; align-items: center; gap: 4px; background-color: rgba(255, 255, 255, 0.7); padding: 4px 10px; border-radius: 12px; font-size: 11px; color: #666; margin-top: 8px; backdrop-filter: blur(4px); }
+        .emotion-status .emoji { font-size: 14px; }
+
+        /* 积分与快捷入口 (对应 MD：积分系统) */
+        .quick-actions { display: flex; justify-content: space-between; margin: 15px 15px 5px; gap: 10px; }
+        .action-btn { flex: 1; background-color: #f8f8f8; border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #555; cursor: pointer; transition: background 0.2s; }
+        .action-btn:active { background-color: #f0f0f0; }
+        .action-btn.point-btn { color: #9b88ed; font-weight: bold; background-color: #f3f0fc; }
+
+        /* 主体内容区：左侧导航 + 右侧商品 */
+        .main-content { flex: 1; display: flex; overflow: hidden; border-top: 1px solid #f0f0f0; margin-top: 5px; }
+        
+        /* 左侧分类导航 (对应 MD：服务分类示例) */
+        .sidebar { width: 85px; background-color: #f7f8fa; overflow-y: auto; }
+        .category-item { padding: 18px 0; text-align: center; font-size: 13px; color: #666; position: relative; cursor: pointer; transition: all 0.2s; }
+        .category-item.active { background-color: #ffffff; color: #333; font-weight: bold; }
+        .category-item.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 16px; background-color: #9b88ed; border-radius: 0 4px 4px 0; }
+
+        /* 右侧服务列表 (对应 MD：服务项目示例及字段) */
+        .item-list { flex: 1; overflow-y: auto; padding: 15px; background-color: #ffffff; padding-bottom: 80px; }
+        .category-title { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .category-desc { font-size: 11px; color: #999; font-weight: normal; }
+        
+        .service-card { display: flex; margin-bottom: 25px; align-items: flex-start; }
+        .service-img-wrap { position: relative; margin-right: 12px; }
+        .service-img { width: 75px; height: 75px; border-radius: 12px; object-fit: cover; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+        /* 冷却时间遮罩 (对应 MD：服务冷却时间) */
+        .cooldown-mask { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; display: none; }
+        .on-cooldown .cooldown-mask { display: flex; flex-direction: column; }
+        
+        .service-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-height: 75px; }
+        .service-name { font-size: 15px; font-weight: bold; color: #333; margin-bottom: 4px; }
+        .service-desc { font-size: 11px; color: #999; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .service-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 10px; }
+        .tag-point { color: #ff6b9a; background: #fff0f4; padding: 2px 6px; border-radius: 4px; }
+        .tag-free { color: #52c41a; background: #f6ffed; padding: 2px 6px; border-radius: 4px; }
+        .tag-time { color: #1890ff; background: #e6f7ff; padding: 2px 6px; border-radius: 4px; }
+        
+        .action-area { display: flex; justify-content: flex-end; align-items: center; margin-top: auto; }
+        .btn-order { background-color: #9b88ed; color: #ffffff; padding: 6px 16px; border-radius: 16px; font-size: 12px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(155, 136, 237, 0.3); transition: transform 0.1s; }
+        .btn-order:active { transform: scale(0.95); }
+        .btn-disabled { background-color: #ccc; box-shadow: none; cursor: not-allowed; }
+
+        /* 底部导航栏 (对应 MD：首页、订单、待办、我的) */
+        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-around; align-items: center; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding-bottom: env(safe-area-inset-bottom); z-index: 10; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #999; font-size: 10px; cursor: pointer; width: 25%; height: 100%; }
+        .nav-item.active { color: #9b88ed; font-weight: bold; }
+        .nav-icon { font-size: 22px; line-height: 1; transition: transform 0.2s; }
+        .nav-item.active .nav-icon { transform: translateY(-2px); }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <div class="header-top">
+            <div class="user-info">
+                <div class="avatars">
+                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka&backgroundColor=ffdfbf" alt="Girl">
+                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4" alt="Boy">
+                </div>
+                <div class="store-info">
+                    <div class="store-name">
+                        发炜 & 轶轶的专属空间
+                        <span class="level-badge">亲密度 Lv.3</span>
+                    </div>
+                    <div class="emotion-status">
+                        <span class="emoji">🥺</span> 状态：有点累，需要陪伴
+                    </div>
+                </div>
+            </div>
+            <div style="color: #666; font-size: 20px; cursor: pointer;">···</div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <div class="action-btn point-btn">
+            <span>🪙 空间积分: 1,250</span>
+        </div>
+        <div class="action-btn">
+            <span>🎁 愿望清单</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <div class="category-item active">情绪安抚</div>
+            <div class="category-item">今日投喂</div>
+            <div class="category-item">跑腿服务</div>
+            <div class="category-item">陪伴服务</div>
+            <div class="category-item">家务分担</div>
+        </div>
+
+        <div class="item-list">
+            <div class="category-title">
+                情绪安抚
+                <span class="category-desc">哄哄那个最重要的人</span>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-img-wrap">
+                    <div class="service-img">🫂</div>
+                </div>
+                <div class="service-info">
+                    <div>
+                        <div class="service-name">抱抱 5 分钟</div>
+                        <div class="service-desc">什么都不说，静静地抱一会儿充个电。</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
+                        <div class="service-meta">
+                            <span class="tag-free">免费</span>
+                            <span class="tag-time">需预约</span>
+                        </div>
+                        <button class="btn-order">立即召唤</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-img-wrap">
+                    <div class="service-img">👏</div>
+                </div>
+                <div class="service-info">
+                    <div>
+                        <div class="service-name">疯狂夸夸我</div>
+                        <div class="service-desc">提供3分钟的情绪价值，全方位无死角赞美。</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
+                        <div class="service-meta">
+                            <span class="tag-point">消耗 10 积分</span>
+                        </div>
+                        <button class="btn-order">下单</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="service-card on-cooldown">
+                <div class="service-img-wrap">
+                    <div class="service-img">🛍️</div>
+                    <div class="cooldown-mask">
+                        <span>冷却中</span>
+                        <span>02:15:00</span>
+                    </div>
+                </div>
+                <div class="service-info">
+                    <div>
+                        <div class="service-name">清空小额购物车</div>
+                        <div class="service-desc">帮你买下单价不超过50元的心动好物。</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
+                        <div class="service-meta">
+                            <span class="tag-point">消耗 500 积分</span>
+                            <span class="tag-time">限量</span>
+                        </div>
+                        <button class="btn-order btn-disabled">冷却中</button>
+                    </div>
+                </div>
+            </div>
+
+             <div class="service-card">
+                <div class="service-img-wrap">
+                    <div class="service-img">🧋</div>
+                </div>
+                <div class="service-info">
+                    <div>
+                        <div class="service-name">买一杯奶茶</div>
+                        <div class="service-desc">需在备注中写明品牌、口味、冰度和甜度。</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
+                        <div class="service-meta">
+                            <span class="tag-point">消耗 50 积分</span>
+                            <span class="tag-time">填备注</span>
+                        </div>
+                        <button class="btn-order">下单</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <div class="nav-icon">🛎️</div>
+            <span>点单</span>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">📋</div>
+            <span>待办</span>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">💌</div>
+            <span>订单</span>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <span>我的</span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<view class="dress-page" style="background: {{activeDress.background || '#fff7fb'}};">
+  <view class="preview-card">
+    <view class="preview-head">
+      <view>
+        <text class="title">空间装扮</text>
+        <text class="subtitle">当前：{{activeDress.name || '默认主题'}}</text>
+      </view>
+      <view class="points">
+        <text>{{user.points || 0}}</text>
+        <text>积分</text>
+      </view>
+    </view>
+    <view class="sample-menu">
+      <view class="sample-side"></view>
+      <view class="sample-content">
+        <view class="sample-line wide"></view>
+        <view class="sample-line"></view>
+        <view class="sample-button" style="background: {{activeDress.primaryColor || '#7f759c'}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="checkin-card">
+    <view>
+      <text class="section-title">签到活动</text>
+      <text class="section-subtitle">{{activityDesc}}</text>
+    </view>
+    <button class="checkin-btn" style="background: {{activeDress.primaryColor || '#7f759c'}}" disabled="{{checkinToday}}" bindtap="checkin">{{checkinToday ? '已签到' : '签到'}}</button>
+  </view>
+
+  <view class="section-title list-title">我的装扮与商店</view>
+  <view class="dress-grid">
+    <view wx:for="{{dressItems}}" wx:key="id" class="dress-card">
+      <view class="dress-preview" style="background: {{item.background}}">
+        <text class="rarity">{{item.rarity}}</text>
+      </view>
+      <text class="dress-name">{{item.name}}</text>
+      <text class="dress-price">{{item.priceText}}</text>
+      <button wx:if="{{item.active}}" class="owned-btn">使用中</button>
+      <button wx:elif="{{item.owned || item.obtainType !== 'paid'}}" class="apply-btn" style="background: {{activeDress.primaryColor || '#7f759c'}}" data-id="{{item.id}}" bindtap="applyDress">应用</button>
+      <button wx:else class="buy-btn" data-product-id="{{item.productId}}" bindtap="buyDress">购买</button>
+    </view>
+  </view>
+  <view class="safe-bottom"></view>
+</view>
