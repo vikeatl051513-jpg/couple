@@ -31,6 +31,8 @@ target/
 .env
 .env.*
 *.local
+local.yml
+local.yaml
 application-local.properties
 couple-backend/src/main/resources/application-local.properties
 wx-front/project.private.config.json
